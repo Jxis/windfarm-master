@@ -1,0 +1,115 @@
+html,
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    /* Ensure the container takes the full height of the viewport */
+    justify-content: space-between;
+}
+
+.animation-container {
+    flex: 0 0 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #87ceeb;
+    position: relative;
+    overflow: hidden;
+}
+
+.wind {
+    width: 300px;
+    /* Increased size */
+    height: 8px;
+    /* Increased size */
+    background-color: white;
+    position: absolute;
+    animation: windAnimation 4s infinite;
+}
+
+.wind::before,
+.wind::after {
+    content: "";
+    display: block;
+    width: 250px;
+    height: 8px;
+    background-color: white;
+    position: absolute;
+    animation: windAnimation 4s infinite;
+}
+
+.wind::before {
+    top: -30px;
+    /* Increased distance between lines */
+    animation-delay: 1s;
+}
+
+.wind::after {
+    top: -60px;
+    /* Increased distance between lines */
+    animation-delay: 2s;
+}
+
+@keyframes windAnimation {
+    0% {
+        transform: translateX(-150%);
+    }
+
+    100% {
+        transform: translateX(150%);
+    }
+}
+
+.form-container {
+    flex: 0 0 50%;
+    padding: 60px;
+    /* Increased padding for better spacing */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f8ff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+input {
+    padding: 18px;
+    /* Adjusted padding */
+    margin: 15px 0;
+    font-size: 18px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    /* Ensure it fits inside the form */
+}
+
+button {
+    padding: 18px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #45a049;
+}
