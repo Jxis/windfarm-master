@@ -6,9 +6,9 @@ const {
   authorizePermissions,
 } = require("../middleware/authentication");
 
-//router
-//  .route("/register")
-//  .post([authenticateUser, authorizePermissions("admin")], register);
+// router
+//   .route("/register")
+//   .post([authenticateUser, authorizePermissions("admin")], register);
 router.post("/register", register);
 router.post("/login", login);
 router.get("/logout", logout);

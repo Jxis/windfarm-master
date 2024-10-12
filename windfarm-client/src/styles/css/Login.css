@@ -12,7 +12,6 @@ body {
     display: flex;
     width: 100%;
     height: 100vh;
-    /* Ensure the container takes the full height of the viewport */
     justify-content: space-between;
 }
 
@@ -24,55 +23,18 @@ body {
     background-color: #87ceeb;
     position: relative;
     overflow: hidden;
+    background-image: url('../images/windfarm-background.jpeg');
+    background-size: cover;
+    background-position: center;
 }
 
 .wind {
-    width: 300px;
-    /* Increased size */
-    height: 8px;
-    /* Increased size */
-    background-color: white;
-    position: absolute;
-    animation: windAnimation 4s infinite;
-}
-
-.wind::before,
-.wind::after {
-    content: "";
-    display: block;
-    width: 250px;
-    height: 8px;
-    background-color: white;
-    position: absolute;
-    animation: windAnimation 4s infinite;
-}
-
-.wind::before {
-    top: -30px;
-    /* Increased distance between lines */
-    animation-delay: 1s;
-}
-
-.wind::after {
-    top: -60px;
-    /* Increased distance between lines */
-    animation-delay: 2s;
-}
-
-@keyframes windAnimation {
-    0% {
-        transform: translateX(-150%);
-    }
-
-    100% {
-        transform: translateX(150%);
-    }
+    display: none;
 }
 
 .form-container {
     flex: 0 0 50%;
     padding: 60px;
-    /* Increased padding for better spacing */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -88,14 +50,12 @@ form {
 
 input {
     padding: 18px;
-    /* Adjusted padding */
     margin: 15px 0;
     font-size: 18px;
     border: 2px solid #ccc;
     border-radius: 10px;
     width: 100%;
     box-sizing: border-box;
-    /* Ensure it fits inside the form */
 }
 
 button {
@@ -112,4 +72,14 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+.error-input {
+    border: 2px solid red;
+}
+
+/* Optional hover/focus effects */
+.error-input:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }

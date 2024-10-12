@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import instance from "../axios/instance";
 import { useNavigate } from "react-router-dom";
-import "./css/Login.css";
+import "../styles/css/Login.css";
 
 const Login = (props) => {
   const {
@@ -57,16 +57,16 @@ const Login = (props) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <h1>WindFarm Login</h1>
           <input
+            className={errors.email ? "error-input" : ""}
             placeholder="Enter your email"
             {...register("email", { required: true })}
           />
-          {errors.email && <p>Email is required</p>}
           <input
             type="password"
+            className={errors.password ? "error-input" : ""}
             placeholder="Enter your password"
             {...register("password", { required: true })}
           />
-          {errors.password && <span>Password is required</span>}
           <button type="submit">Log In</button>
         </form>
       </div>

@@ -1,3 +1,4 @@
+const { connectRabbitMQ } = require("./services/rabbitMQService");
 require("dotenv").config();
 require("express-async-errors"); // Adds try catch to all controllers automatically
 const PORT = process.env.PORT;
@@ -6,6 +7,9 @@ const connectDB = require("./db/connect");
 const app = express();
 
 const cors = require("cors");
+
+// RabbitMQ
+connectRabbitMQ();
 
 // Middlewares
 const notFoundMiddleware = require("./middleware/not-found");

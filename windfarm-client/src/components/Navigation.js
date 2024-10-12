@@ -1,62 +1,77 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from "react";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import "../styles/css/Navigation.css";
 
-const Navigation = props => {
+const Navigation = (props) => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const getJwtToken = () => {
+    return localStorage.getItem("JWT_TOKEN");
+  };
 
-const getJwtToken = () => {
-  return localStorage.getItem("JWT_TOKEN");
-};
-    
-    const jwtToken = getJwtToken();
+  const jwtToken = getJwtToken();
 
-    if (!jwtToken) {
-        return null;
-    }
+  if (!jwtToken) {
+    return null;
+  }
 
-    const { email, role } = jwtDecode(jwtToken);
-    console.log(role);
-
-
-    if (role === "admin") {
-        return (
-        <div>
-          <button onClick={() => navigate("/home")}>Home</button>
-          <button onClick={() => navigate("/admin")}>Dashboard</button>
-          <button onClick={() => navigate("/register")}>Create User</button>
-          <button onClick={() => navigate("/admin/wind-farm-type")}>
-            Create Wind Farm Type
-          </button>
-          <p>
-            {role}: {email}
-          </p>
-          <button
-            onClick={() => {
-              navigate("/login");
-              localStorage.removeItem("JWT_TOKEN");
-            }}
-          >
-            Logout
-          </button>
-        </div>)
-    }
-
+  const { email, role } = jwtDecode(jwtToken);
+  console.log(role);
   return (
-      <div>
-          <button onClick={() => navigate("/home")}>Home</button>
-          <p>{role}: {email}</p>
-          <button onClick={() => {
-              navigate('/login')
-              localStorage.removeItem("JWT_TOKEN")
-          }
-          }>Logout</button>
-        </div>
-  )
-}
+    <nav className="navbar">
+      <ul className="nav-links">
+        <li>
+          <button className="nav-button" onClick={() => navigate("/home")}>
+            Home
+          </button>
+        </li>
 
-Navigation.propTypes = {}
+        {role === "admin" && (
+          <>
+            <li>
+              <button className="nav-button" onClick={() => navigate("/admin")}>
+                Dashboard
+              </button>
+            </li>
+            <li>
+              <button
+                className="nav-button"
+                onClick={() => navigate("/register")}
+              >
+                Create User
+              </button>
+            </li>
+            <li>
+              <button
+                className="nav-button"
+                onClick={() => navigate("/admin/wind-farm-type")}
+              >
+                Create Wind Farm Type
+              </button>
+            </li>
+          </>
+        )}
+      </ul>
 
-export default Navigation
+      <div className="nav-user">
+        <p>
+          {role}: {email}
+        </p>
+        <button
+          className="logout-button"
+          onClick={() => {
+            navigate("/login");
+            localStorage.removeItem("JWT_TOKEN");
+          }}
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
+  );
+};
+
+Navigation.propTypes = {};
+
+export default Navigation;
