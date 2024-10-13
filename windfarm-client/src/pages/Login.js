@@ -51,7 +51,7 @@ const Login = (props) => {
     <div className="container">
       <div className="animation-container">
         <div className="wind"></div>
-        <div className="turbine"></div> {/* Turbine graphic */}
+        <div className="turbine"></div>
       </div>
       <div className="form-container">
         <form onSubmit={handleSubmit(onSubmit)}>

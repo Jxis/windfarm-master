@@ -1,16 +1,13 @@
-/* Glavni container ispod navigacionog bara */
 .home-container {
     display: flex;
     gap: 32px;
     padding: 20px;
     margin-top: 60px;
-    /* Ovo osigurava da sadržaj bude ispod navigacionog bara */
     align-items: flex-start;
     justify-content: space-between;
     width: 100%;
 }
 
-/* Sekcija za informacije */
 .info-section {
     display: flex;
     flex-direction: column;
@@ -21,12 +18,10 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Stilovi za prikaz koordinata */
 .coordinates-info {
     margin-bottom: 16px;
 }
 
-/* Dugme */
 button {
     padding: 12px 20px;
     background-color: #4caf50;

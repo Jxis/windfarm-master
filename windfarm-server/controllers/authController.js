@@ -28,6 +28,8 @@ const login = async (req, res) => {
     }
 
     const jwtToken = createJWT(user);
+
+    console.log(jwtToken);
     const message = JSON.stringify({
       email: user.email,
       message: `User ${user.email} has logged in.`,
@@ -36,7 +38,7 @@ const login = async (req, res) => {
     await sendLoginNotification(message); // Send notification to RabbitMQ
     res.status(StatusCodes.OK).json({ email: user?.email, jwtToken });
   } catch (error) {
-    console.error("Login Error:", error); // Log the actual error to the console
+    console.error("Login Error:", error);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal Server Error" });

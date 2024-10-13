@@ -1,42 +1,56 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { Map } from "../components/Map";
 import useGetWindSpeed from "../hooks/useGetWindSpeed";
-import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
 import instance from "../axios/instance";
+import moment from "moment";
 import CalculateProfit from "../components/CalculateProfit";
-import CreateWindFarm from "../components/CreateWindFarm";
 import "../styles/css/Home.css";
 
 const start = moment.utc().startOf("day").toISOString();
 const end = moment.utc().endOf("day").toISOString();
 
-const Home = (props) => {
+const Home = () => {
   const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
-  const [windFarmType, setWindFarmType] = useState({});
+  const [selectedWindFarmId, setSelectedWindFarmId] = useState(null);
   const [calculatedTotalProfit, setCalculatedTotalProfit] = useState(null);
-
   const [windSpeed, setWindSpeed] = useState([]);
+  const [productionData, setProductionData] = useState(null);
+
   const { fetchWindSpeedData } = useGetWindSpeed();
-
-  const { data: windFarmTypes } = useQuery({
-    queryKey: ["WindFarmTypes"],
-    queryFn: async () => {
-      const response = await instance.get("/wind-farm-type/all");
-
-      return response?.data;
-    },
-  });
 
   const { data: windFarms, refetch } = useQuery({
     queryKey: ["WindFarms"],
     queryFn: async () => {
       const response = await instance.get("/wind-farm/all");
-
       return response?.data;
     },
   });
+
+  const handleGetWindSpeed = async () => {
+    if (!selectedWindFarmId) {
+      console.error("No wind farm selected!");
+      return;
+    }
+
+    const currentWindSpeed = await fetchWindSpeedData({
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      start,
+      end,
+    });
+
+    if (currentWindSpeed) {
+      setWindSpeed(currentWindSpeed);
+
+      const response = await instance.post(
+        `/wind-farm/${selectedWindFarmId}/update-production`,
+        { windSpeed: currentWindSpeed[0]?.windSpeed?.noaa }
+      );
+
+      setProductionData(response?.data?.productionEntry);
+    }
+  };
 
   return (
     <div className="home-container">
@@ -45,69 +59,32 @@ const Home = (props) => {
           setCoordinates={setCoordinates}
           coordinates={coordinates}
           windFarms={windFarms}
+          setSelectedWindFarmId={setSelectedWindFarmId}
         />
         <div>
-          <div className="info-sections">
-            <div className="coordinates-info">
-              <p>Selected Coordinates</p>
-              <p>Lat: {coordinates.lat}</p>
-              <p>Lng: {coordinates.lng}</p>
-            </div>
+          <div className="coordinates-info">
+            <p>Selected Coordinates</p>
+            <p>Lat: {coordinates.lat}</p>
+            <p>Lng: {coordinates.lng}</p>
           </div>
-          <button
-            onClick={async () => {
-              const currentWindSpeed = await fetchWindSpeedData({
-                lat: coordinates.lat,
-                lng: coordinates.lng,
-                start,
-                end,
-              });
 
-              if (currentWindSpeed) {
-                setWindSpeed(currentWindSpeed);
-              }
-            }}
-          >
-            Get Todays Wind Speed
-          </button>
-          {windSpeed?.map((data, index) => {
-            return (
-              <div>
-                <p>
-                  Date:{" "}
-                  {`${moment(windSpeed[index]?.time).format(
-                    "YYYY-MM-DD HH:mm"
-                  )} - ${moment(windSpeed[index + 1]?.time).format(
-                    "YYYY-MM-DD HH:mm"
-                  )}`}
-                </p>
-                <p>Wind Speed: {data?.windSpeed?.noaa}</p>
-              </div>
-            );
-          })}
-          {windSpeed && (
-            <>
-              <CalculateProfit
-                data={windFarmTypes?.windFarmTypes}
-                period={windSpeed}
-                setWindFarmType={setWindFarmType}
-                setCalculatedTotalProfit={setCalculatedTotalProfit}
-              />
-              {calculatedTotalProfit && (
-                <CreateWindFarm
-                  windFarmType={windFarmType}
-                  coordinates={coordinates}
-                  refetch={refetch}
-                />
-              )}
-            </>
+          <button onClick={handleGetWindSpeed}>Get Today's Wind Speed</button>
+
+          {productionData && (
+            <div>
+              <p>Wind Speed: {productionData?.windSpeed} m/s</p>
+              <p>Power Produced: {productionData?.production} kW</p>
+            </div>
           )}
+
+          <CalculateProfit
+            windFarmId={selectedWindFarmId}
+            setCalculatedTotalProfit={setCalculatedTotalProfit}
+          />
         </div>
       </div>
     </div>
   );
 };
-
-Home.propTypes = {};
 
 export default Home;
