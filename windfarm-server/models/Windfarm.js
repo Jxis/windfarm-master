@@ -52,6 +52,10 @@ const WindFarmSchema = mongoose.Schema(
           required: true,
           default: 0,
         },
+        windSpeed: {
+          type: Number,
+          required: true,
+        },
         time: {
           type: String,
         },

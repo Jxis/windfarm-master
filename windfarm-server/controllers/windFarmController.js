@@ -42,7 +42,6 @@ const updateWindFarmProduction = async (req, res) => {
     production: calculatePower(windSpeedData, Pn, Vmin, Vfull, Vmax),
   };
 
-  // Update production history
   windFarm.productionHistory.push(productionEntry);
 
   const profit = productionEntry.production * 5; // PROFIT_MULTIPLIER is 5
@@ -55,7 +54,7 @@ const updateWindFarmProduction = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     windFarm,
-    productionEntry, // Return the production entry for the frontend to display
+    productionEntry,
   });
 };
 
@@ -195,54 +194,58 @@ const getPredictedProfit = async (req, res) => {
   const { id } = req.params;
   const { _id } = req.user;
 
-  // Pronađi vetrofarmu u bazi podataka
+  console.log("Received wind farm ID for prediction:", id);
+
   const windFarm = await WindFarm.findOne({ user: _id, _id: id });
 
   if (!windFarm) {
-    throw new CustomError.NotFoundError(
-      `Wind Farm with id: ${id} was not found`
-    );
-  }
-
-  // Proveri da li proizvodnja vetrofarmi ima podatke o brzini vetra
-  if (!windFarm.productionHistory || windFarm.productionHistory.length === 0) {
+    console.error(`Wind Farm with ID: ${id} not found`);
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "No wind speed data available for prediction" });
+      .json({ msg: `Wind Farm with id: ${id} was not found` });
   }
 
-  // Pripremi podatke za Python servis
-  const windSpeedData = windFarm.productionHistory.map(
-    (entry) => entry.windSpeed
-  );
+  const windSpeedData = windFarm.productionHistory
+    .map((entry) => entry.windSpeed)
+    .filter((speed) => speed !== undefined && speed !== null);
 
-  if (windSpeedData.length === 0) {
+  const actualProfits = windFarm.profitHistory
+    .map((entry) => entry.profit)
+    .filter((profit) => profit !== undefined && profit !== null);
+
+  console.log("Filtered wind speed data:", windSpeedData);
+  console.log("Filtered actual profit data:", actualProfits);
+
+  if (windSpeedData.length === 0 || actualProfits.length === 0) {
+    console.error("No valid data available for prediction");
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "Wind speed data is empty" });
+      .json({ msg: "Wind speed or profit data is empty" });
   }
 
   try {
-    // Pošalji podatke Python servisu za predikciju
     const response = await axios.post("http://localhost:8001/predict-profit", {
       wind_speed_data: windSpeedData,
+      actual_profits: actualProfits,
     });
 
-    const predictedProfit = response.data.predicted_profit;
+    console.log("Prediction response from Python service:", response.data);
 
-    // Vrati predikciju profita klijentu
-    res.status(StatusCodes.OK).json({ predictedProfit });
-  } catch (error) {
-    console.error("Error calculating predicted profit:", error.message);
     res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Error calculating predicted profit" });
+      .status(StatusCodes.OK)
+      .json({ predictedProfit: response.data.predicted_profit });
+  } catch (error) {
+    console.error("Error predicting profit:", error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      msg: "Error predicting profit",
+      error: error.message,
+    });
   }
 };
 
 const calculateProfitForWindFarm = async (req, res) => {
-  const { id } = req.params; // windFarm ID from URL
-  const { _id } = req.user; // Get user ID from logged-in user
+  const { id } = req.params;
+  const { _id } = req.user;
 
   const windFarm = await WindFarm.findOne({ user: _id, _id: id }).populate(
     "windFarmType"

@@ -16,6 +16,7 @@ const Home = () => {
   const [calculatedTotalProfit, setCalculatedTotalProfit] = useState(null);
   const [windSpeed, setWindSpeed] = useState([]);
   const [productionData, setProductionData] = useState(null);
+  const [predictedProfit, setPredictedProfit] = useState(null);
 
   const { fetchWindSpeedData } = useGetWindSpeed();
 
@@ -52,6 +53,30 @@ const Home = () => {
     }
   };
 
+  const handlePredictProfit = async () => {
+    if (!selectedWindFarmId) {
+      console.error("No wind farm selected!");
+      return;
+    }
+
+    console.log("Selected WindFarm ID: ", selectedWindFarmId);
+
+    try {
+      const response = await instance.get(
+        `/wind-farm/${selectedWindFarmId}/predicted-profit`
+      );
+
+      if (response?.data) {
+        console.log("Predicted Profit Data:", response.data);
+        setPredictedProfit(response.data.predictedProfit);
+      } else {
+        console.error("No data in response:", response);
+      }
+    } catch (error) {
+      console.error("Error predicting profit:", error.response?.data || error);
+    }
+  };
+
   return (
     <div className="home-container">
       <div style={{ display: "flex", gap: 32 }}>
@@ -74,6 +99,21 @@ const Home = () => {
             <div>
               <p>Wind Speed: {productionData?.windSpeed} m/s</p>
               <p>Power Produced: {productionData?.production} kW</p>
+            </div>
+          )}
+
+          <button onClick={handlePredictProfit}>Predict Profit</button>
+
+          {predictedProfit && (
+            <div>
+              <h3>Predicted Profit</h3>
+              {predictedProfit.map((profit, index) => (
+                <div key={index}>
+                  <p>
+                    Profit for period {index + 1}: {profit}
+                  </p>
+                </div>
+              ))}
             </div>
           )}
 
